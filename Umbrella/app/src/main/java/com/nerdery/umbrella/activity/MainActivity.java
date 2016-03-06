@@ -153,17 +153,29 @@ public class MainActivity extends ActionBarActivity {
     private void buildHourly (WeatherData weatherData){
 
         LinearLayout myRoot = (LinearLayout) findViewById(R.id.body);
+        int listLength = weatherData.forecast.size() + 1;
 
-        for (int i = 0; i < weatherData.forecast.size(); i++) {
-            LinearLayout linearLayout = new LinearLayout(MainActivity.this);
-            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-            linearLayout.setPadding(50, 20, 0, 20);
+        LinearLayout linearLayout = new LinearLayout(MainActivity.this);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout.setPadding(50, 20, 0, 20);
 
-            linearLayout.addView(hour(weatherData.forecast.get(i).displayTime));
-            linearLayout.addView(icon(weatherData.forecast.get(i).icon));
-            linearLayout.addView(temp(weatherData, i));
+        for (int i = 1; i < listLength; i++) {
 
-            myRoot.addView(linearLayout);
+            if ( ((i-1)%4) == 0){
+                myRoot.addView(linearLayout);
+                linearLayout = new LinearLayout(MainActivity.this);
+                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                linearLayout.setPadding(50, 20, 0, 20);
+                linearLayout.setWeightSum(4);
+            }
+
+            LinearLayout hourlyLayout = new LinearLayout(MainActivity.this);
+            hourlyLayout.setOrientation(LinearLayout.VERTICAL);
+
+            hourlyLayout.addView(hour(weatherData.forecast.get(i-1).displayTime));
+            hourlyLayout.addView(icon(weatherData.forecast.get(i-1).icon));
+            hourlyLayout.addView(temp(weatherData, i));
+            linearLayout.addView(hourlyLayout);
         }
 
     }
@@ -201,15 +213,15 @@ public class MainActivity extends ActionBarActivity {
         String murica = sharedPreferences.getString(getString(R.string.MURICA), "yes");
         if(i < 1){
             if(murica.equals("yes")){
-                return Integer.toString(Math.round(weatherData.currentObservation.tempFahrenheit));
+                return Integer.toString(Math.round(weatherData.currentObservation.tempFahrenheit))+"°";
             } else {
-                return Integer.toString(Math.round(weatherData.currentObservation.tempCelsius));
+                return Integer.toString(Math.round(weatherData.currentObservation.tempCelsius))+"°C";
             }
         } else {
             if(murica.equals("yes")){
-                return Integer.toString(Math.round(weatherData.forecast.get(i-1).tempFahrenheit));
+                return Integer.toString(Math.round(weatherData.forecast.get(i-1).tempFahrenheit))+"°";
             } else {
-                return Integer.toString(Math.round(weatherData.forecast.get(i-1).tempCelsius));
+                return Integer.toString(Math.round(weatherData.forecast.get(i-1).tempCelsius))+"°C";
             }
         }
     }
@@ -217,6 +229,7 @@ public class MainActivity extends ActionBarActivity {
     private TextView hour (String myHour){
         TextView hour = new TextView(MainActivity.this);
         hour.setText(myHour);
+        hour.setPadding(30, 10, 10, 20);
         return hour;
     }
 
@@ -231,6 +244,7 @@ public class MainActivity extends ActionBarActivity {
     private TextView temp (WeatherData weatherData, int i){
         TextView temp = new TextView(MainActivity.this);
         temp.setText(getTemp(weatherData, i));
+        temp.setPadding(60, 10, 10, 20);
         return temp;
     }
 
