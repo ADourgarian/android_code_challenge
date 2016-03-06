@@ -17,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nerdery.umbrella.R;
@@ -59,9 +60,6 @@ public class MainActivity extends ActionBarActivity {
         inflater.inflate(R.menu.menu_main, menu);
         ActionBar ab = getSupportActionBar();
 
-
-
-
         this.myMenu = menu;
         return true;
     }
@@ -103,16 +101,17 @@ public class MainActivity extends ActionBarActivity {
                 String icon = weatherData.currentObservation.icon;
                 ab.setTitle(city);
 
-                icon = api.getIconApi().getUrlForIcon(icon, false);
+                String iconUrl = api.getIconApi().getUrlForIcon(icon, false);
                 Log.v("myicon:", icon);
 
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString(getString(R.string.CURRENT_CONDITIONS), weather);
                 editor.putString(getString(R.string.CURRENT_TEMP), currentTemp);
-                editor.putString(getString(R.string.ICON_URl), icon);
+                editor.putString(getString(R.string.ICON_URl), iconUrl);
                 editor.commit();
 
-                buildMenu(sharedPreferences, ab);
+                buildMenu(sharedPreferences, ab, weatherData, iconUrl);
+                buildHourly(weatherData);
 
             }
 
@@ -123,7 +122,7 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    private void buildMenu (SharedPreferences sharedPreferences, ActionBar ab){
+    private void buildMenu (SharedPreferences sharedPreferences, ActionBar ab, WeatherData weatherData, String iconUrl){
         TextView currentCondition = new TextView(MainActivity.this);
         currentCondition.setText(sharedPreferences.getString(getString(R.string.CURRENT_CONDITIONS), "Condition"));
         currentCondition.setPadding(5, 0, 5, 0);
@@ -132,7 +131,7 @@ public class MainActivity extends ActionBarActivity {
         myMenu.add("Text").setActionView(currentCondition).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
         TextView currentTemp = new TextView(MainActivity.this);
-        currentTemp.setText(sharedPreferences.getString(getString(R.string.CURRENT_TEMP), "Temperature"));
+        currentTemp.setText(getTemp(weatherData, 0));
         currentTemp.setPadding(5, 0, 5, 0);
         currentTemp.setTypeface(null, Typeface.BOLD);
         currentTemp.setTextSize(14);
@@ -142,13 +141,31 @@ public class MainActivity extends ActionBarActivity {
 
         // show The Image in a ImageView
         new DownloadImageTask(icon)
-                .execute("http://java.sogeti.nl/JavaBlog/wp-content/uploads/2009/04/android_icon_256.png");
+                .execute(iconUrl);
 
 
         icon.setPadding(5, 0, 5, 0);
         myMenu.add("Image").setActionView(icon).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
         ab.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.weather_warm)));
+    }
+
+    private void buildHourly (WeatherData weatherData){
+
+        LinearLayout myRoot = (LinearLayout) findViewById(R.id.body);
+
+        for (int i = 0; i < weatherData.forecast.size(); i++) {
+            LinearLayout linearLayout = new LinearLayout(MainActivity.this);
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            linearLayout.setPadding(50, 20, 0, 20);
+
+            linearLayout.addView(hour(weatherData.forecast.get(i).displayTime));
+            linearLayout.addView(icon(weatherData.forecast.get(i).icon));
+            linearLayout.addView(temp(weatherData, i));
+
+            myRoot.addView(linearLayout);
+        }
+
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
@@ -175,6 +192,46 @@ public class MainActivity extends ActionBarActivity {
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
         }
+    }
+
+    // yes = fahrenheit / no = celsius
+    private String getTemp(WeatherData weatherData,int i){
+        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(
+                getString(R.string.PREF_FILE), Context.MODE_PRIVATE);
+        String murica = sharedPreferences.getString(getString(R.string.MURICA), "yes");
+        if(i < 1){
+            if(murica.equals("yes")){
+                return Integer.toString(Math.round(weatherData.currentObservation.tempFahrenheit));
+            } else {
+                return Integer.toString(Math.round(weatherData.currentObservation.tempCelsius));
+            }
+        } else {
+            if(murica.equals("yes")){
+                return Integer.toString(Math.round(weatherData.forecast.get(i-1).tempFahrenheit));
+            } else {
+                return Integer.toString(Math.round(weatherData.forecast.get(i-1).tempCelsius));
+            }
+        }
+    }
+
+    private TextView hour (String myHour){
+        TextView hour = new TextView(MainActivity.this);
+        hour.setText(myHour);
+        return hour;
+    }
+
+    private ImageView icon (String myIcon){
+        ImageView icon = new ImageView(MainActivity.this);
+        String iconUrl = api.getIconApi().getUrlForIcon(myIcon, true);
+        new DownloadImageTask(icon)
+                .execute(iconUrl);
+        return icon;
+    }
+
+    private TextView temp (WeatherData weatherData, int i){
+        TextView temp = new TextView(MainActivity.this);
+        temp.setText(getTemp(weatherData, i));
+        return temp;
     }
 
 

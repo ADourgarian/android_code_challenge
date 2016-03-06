@@ -13,12 +13,21 @@
         android:id="@+id/zip_code"
         />
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:text="@string/UNIT"
-        android:id="@+id/unit"
-        />
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RadioButton android:id="@+id/radio_fahrenheit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fahrenheit"
+            android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/radio_celsius"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/celsius"
+            android:onClick="onRadioButtonClicked"/>
+    </RadioGroup>
 
     <Button
         android:layout_width="wrap_content"
