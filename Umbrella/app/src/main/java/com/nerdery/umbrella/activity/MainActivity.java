@@ -42,24 +42,13 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(
-                getString(R.string.PREF_FILE), Context.MODE_PRIVATE);
-
-        String defaultZip = getString(R.string.homeZip);
-        String myZip = sharedPreferences.getString(getResources().getString(R.string.ZIP_CODE), defaultZip);
-
-        getWeather(myZip);
+        getWeather();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(
-                getString(R.string.PREF_FILE), Context.MODE_PRIVATE);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
-        ActionBar ab = getSupportActionBar();
-
         this.myMenu = menu;
         return true;
     }
@@ -86,7 +75,13 @@ public class MainActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
-    public void getWeather (String myZip){
+    public void getWeather (){
+        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(
+                getString(R.string.PREF_FILE), Context.MODE_PRIVATE);
+
+        String defaultZip = getString(R.string.homeZip);
+        String myZip = sharedPreferences.getString(getResources().getString(R.string.ZIP_CODE), defaultZip);
+
         api.getWeatherApi().getForecastForZip(Integer.parseInt(myZip), new Callback<WeatherData>() {
             @Override
             public void success(WeatherData weatherData, Response response) {
@@ -101,14 +96,8 @@ public class MainActivity extends ActionBarActivity {
                 String icon = weatherData.currentObservation.icon;
                 ab.setTitle(city);
 
-                String iconUrl = api.getIconApi().getUrlForIcon(icon, false);
+                String iconUrl = api.getIconApi().getUrlForIcon(icon, true);
                 Log.v("myicon:", icon);
-
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(getString(R.string.CURRENT_CONDITIONS), weather);
-                editor.putString(getString(R.string.CURRENT_TEMP), currentTemp);
-                editor.putString(getString(R.string.ICON_URl), iconUrl);
-                editor.commit();
 
                 buildMenu(sharedPreferences, ab, weatherData, iconUrl);
                 buildHourly(weatherData);
@@ -124,7 +113,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void buildMenu (SharedPreferences sharedPreferences, ActionBar ab, WeatherData weatherData, String iconUrl){
         TextView currentCondition = new TextView(MainActivity.this);
-        currentCondition.setText(sharedPreferences.getString(getString(R.string.CURRENT_CONDITIONS), "Condition"));
+        currentCondition.setText(weatherData.currentObservation.weather);
         currentCondition.setPadding(5, 0, 5, 0);
         currentCondition.setTypeface(null, Typeface.BOLD);
         currentCondition.setTextSize(14);

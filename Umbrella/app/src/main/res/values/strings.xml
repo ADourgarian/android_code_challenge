@@ -11,11 +11,7 @@
     <string name="celsius">Celsius</string>
 
     <string name="PREF_FILE">APP_PREF_FILE</string>
-    <string name="ZIP_CODE">Enter Your Zip Code</string>
+    <string name="ZIP_CODE">55123</string>
     <string name="UNIT">Units</string>
-    <string name="CURRENT_CONDITIONS">Current Conditions</string>
-    <string name="ICON_URl">Icon Url</string>
     <string name="MURICA">true</string>
-
-    <string name="CURRENT_TEMP">Current Temp</string>
 </resources>
