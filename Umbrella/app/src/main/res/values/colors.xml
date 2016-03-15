@@ -3,6 +3,7 @@
     <!-- App-wide colors to indicate whether the temperature is warm or cool -->
     <color name="weather_warm">#ff9800</color>
     <color name="weather_cool">#03a9f4</color>
+    <color name="white">#ffffff</color>
 
     <!-- Forecast card colors -->
     <color name="forecast_card_divider">#ccc</color>
