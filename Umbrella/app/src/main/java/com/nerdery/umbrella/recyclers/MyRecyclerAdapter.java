@@ -1,4 +1,4 @@
-package com.nerdery.umbrella.recycler;
+package com.nerdery.umbrella.recyclers;
 
 /**
  * Created by AVALON on 3/13/16.
